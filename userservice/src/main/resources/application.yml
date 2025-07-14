@@ -1,9 +1,8 @@
-server:
-  port: 8080
-
 spring:
+  config:
+    import: optional:file:../kodera-config/.env
   datasource:
-    url: jdbc:postgresql://localhost:5432/${POSTGRES_Auth_DB}
+    url: jdbc:postgresql://localhost:5432/${POSTGRES_User_DB}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
   jpa:
@@ -11,11 +10,9 @@ spring:
       ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-jwt:
-  secret: ${JWT_SECRET}
-  access-token-expiration-ms: 3600000       # 1 hour
-  refresh-token-expiration-ms: 86400000    # 2 days
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
 logging:
   level:
     org.springframework.security: DEBUG
