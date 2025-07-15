@@ -44,6 +44,7 @@ public class JwtService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().name());
+        claims.put("userId", user.getId());
         return buildToken(claims, user.getEmail(), expirationTimeMs);
     }
     private String buildToken(Map<String, Object> extraClaims, String subject, long expirationTimeMS)

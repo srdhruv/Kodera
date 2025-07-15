@@ -7,8 +7,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.security.Principal;
 
 @RestController
@@ -19,8 +21,22 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserProfileDto> getUser(@PathVariable Long id)
-    {
+    public ResponseEntity<UserProfileDto> getUser(@PathVariable Long id) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        System.out.println("Not unauthorized");
+        System.out.println("principal is " + authentication.getPrincipal().toString());
+
+        Long currentUserId = Long.parseLong(authentication.getPrincipal().toString());
+        if (!currentUserId.equals(id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        var details = userProfileService.getUserDetails(id);
+        System.out.println("Detains " + details.getUserId() + " " + details.getName());
         return ResponseEntity.ok(userProfileService.getUserDetails(id));
     }
     @PutMapping("/{id}")
